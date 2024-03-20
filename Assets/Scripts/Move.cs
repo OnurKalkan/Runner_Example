@@ -2,15 +2,19 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Move : MonoBehaviour
 {   
-    public int speed = 1;
+    public int speed = 1, coinCount = 0, heartCount = 1;
     public float leftBorder = -2.5f, rightBorder = 2.5f;
     //float height = 1.25f;
     float transSpeed = 0.25f;
     public bool onLeft = false, mid = true, onRight = false;
     int timer = 0;
+    public TextMeshProUGUI coinText, heartText;
+    public GameObject failPanel;
 
     // Update is called once per frame
     void Update()
@@ -74,6 +78,38 @@ public class Move : MonoBehaviour
         {
             GetComponent<Animator>().SetBool("Die", true);
             speed = 0;
+            failPanel.SetActive(true);
         }
+        if (other.CompareTag("Coin"))
+        {
+            Destroy(other.gameObject);
+            //other.gameObject.SetActive(false);
+            coinCount++;
+            coinText.text = coinCount.ToString();
+        }
+        if (other.CompareTag("Heart"))
+        {
+            Destroy(other.gameObject);
+            //other.gameObject.SetActive(false);
+            if(heartCount < 5)
+                heartCount++;
+            heartText.text = "Heart: " + heartCount;
+            transform.Find("skateboard").gameObject.SetActive(true);
+            GetComponent<Animator>().SetBool("Idle", true);
+            GetComponent<Animator>().SetBool("Run", false);
+            transform.DOMoveY(0, 1);
+        }
+    }
+    public void RestartLevel()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void NextLevel()
+    {
+        if (SceneManager.GetActiveScene().buildIndex == 0)
+            SceneManager.LoadScene(1);
+        if (SceneManager.GetActiveScene().buildIndex == 1)
+            SceneManager.LoadScene(0);
     }
 }
